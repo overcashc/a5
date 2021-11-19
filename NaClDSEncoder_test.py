@@ -3,7 +3,9 @@
 # 
 # ICS 32
 # Mark S. Baldwin
-
+# Michael Yeung
+# myeung2@uci.edu
+# 71598323
 import unittest
 from NaClDSEncoder import NaClDSEncoder
 from nacl.public import PrivateKey, PublicKey, Box
