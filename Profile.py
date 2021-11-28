@@ -152,7 +152,7 @@ class Profile:
     Raises DsuFileError
 
     """
-    def save_profile(self, path: str) -> None:
+    def save_profile(self, path: object) -> object:
         p = Path(path)
 
         if os.path.exists(p) and p.suffix == '.dsu':

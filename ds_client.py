@@ -27,6 +27,7 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
     client.sendall(join_func.encode('utf-8')) #send username and password to server
     srv_msg = client.recv(4096).decode('utf-8')
     variables = ds_protocol.extract_json(srv_msg) #extracting token & message
+    print(variables)#debug
     print(variables[1]) 
     srv_msg = json.loads(srv_msg) 
     try:
@@ -34,6 +35,7 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
       post_message = ds_protocol.post(token, message) # post function
       client.sendall(post_message.encode('utf-8')) #sending message to server
       srv_msg2 = client.recv(4096).decode('utf-8')
+      print(srv_msg2) #debug
       post_response = ds_protocol.extract_msg(srv_msg2)
       print(f"{post_response}:", message)
       bio_func = ds_protocol.bio(token, bio) # bio function
@@ -41,4 +43,4 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
     except KeyError:
       print("Please try again with the correct username or password.")
 
-  
+send('168.235.86.101', 3021, 'spiderman', 'pass123', 'Hello', 'this is a bio') #debug

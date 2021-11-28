@@ -3,11 +3,12 @@
 # 
 # ICS 32
 # Mark S. Baldwin
-
+# Michael Yeung
+# myeung2@uci.edu
+# 71598323
 import unittest
 from NaClDSEncoder import NaClDSEncoder
 from nacl.public import PrivateKey, PublicKey, Box
-
 
 class TestNaClDSEncoder(unittest.TestCase):
 
@@ -29,7 +30,7 @@ class TestNaClDSEncoder(unittest.TestCase):
         self.assertEqual(len(nacl_enc.keypair), 88)
         self.assertEqual(nacl_enc.public_key, nacl_enc.keypair[:44])
         self.assertEqual(nacl_enc.private_key, nacl_enc.keypair[44:])
-
+    
     def test_encode_public(self):
         # Use the NaClDSEncoder to create new keys
         test_keys = NaClDSEncoder()
@@ -39,7 +40,7 @@ class TestNaClDSEncoder(unittest.TestCase):
         nacl_enc = NaClDSEncoder()
         pkey = nacl_enc.encode_public_key(test_keys.public_key)
         self.assertEqual(type(pkey), PublicKey)
-
+    
     def test_encode_private(self):
         # Use the NaClDSEncoder to create new keys
         test_keys = NaClDSEncoder()
