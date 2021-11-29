@@ -12,7 +12,7 @@ import ds_client
 
 port = 3021
 #server = "168.235.86.101" 
-store_info = Profile()
+store_info = NaClProfile()
 dir_and_name = ''
 C_ran = False
 O_ran = False
@@ -29,7 +29,7 @@ apikey = "de81f1cd5761b067f3b3625d8d635530"
 apikey_fm = '33f7f26663017ea24945be21492594b2'
 open_weather = OpenWeather(zipcode, ccode)
 last_fm = LastFM()
-np = NaClProfile()
+
 
 '''
 File explorer
@@ -119,7 +119,7 @@ def C(p):  #C create a new file  name.dsu
     new_file.write("")
     new_file.close()
     print(dir_and_name)
-    store_info = Profile(dsuserver=None, username=None, password=None) #to clear the previous profile
+    store_info = NaClProfile(dsuserver=None, username=None, password=None) #to clear the previous profile
     store_info.bio = ''
     
     if admin == False: #asking for inputs for new file
@@ -127,7 +127,7 @@ def C(p):  #C create a new file  name.dsu
         password_input = input("Please enter your password: ")
         bio_input = input("Please enter a bio: ")
         
-        store_info = Profile('', username_input, password_input)
+        store_info = NaClProfile('', username_input, password_input)
         store_info.bio = bio_input
     return True
     
@@ -214,8 +214,6 @@ def E(): #Edit info in dsu file
                     transcluded_entry = test_api(entry, apikey, open_weather)
                 else:
                     transcluded_entry = test_api(entry, apikey_fm, last_fm)
-            #encryption
-            np.encrypt_entry(transcluded_entry, np.public_key).decode('utf-8')
             post = Post(transcluded_entry)
             store_info.add_post(post)
             upload_entry = input("Would you like to publish this entry to the ICS 32 Distributed Social? Please Enter: yes or no\n")  

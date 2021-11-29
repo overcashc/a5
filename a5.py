@@ -8,8 +8,6 @@
 # 
 # The following module provides a graphical user interface shell for the DSP journaling program.
 
-
-
 import tkinter as tk
 from tkinter import ttk, filedialog
 from Profile import Post
@@ -52,9 +50,8 @@ class Body(tk.Frame):
     NOTE: This method is useful for clearing the widget, just pass an empty string.
     """
     def set_text_entry(self, text:str):
-        # TODO: Write code to that deletes all current text in the self.entry_editor widget
-        # and inserts the value contained within the text parameter.
-        pass
+        self.entry_editor.delete(0, 'end')
+        self.entry_editor.insert(text)
     
     """
     Populates the self._posts attribute with posts from the active DSU file.
@@ -65,7 +62,11 @@ class Body(tk.Frame):
         # HINT: You will have to write the delete code yourself, but you can take 
         # advantage of the self.insert_posttree method for updating the posts_tree
         # widget.
-        pass
+        self._posts = []
+        self._posts_tree.delete(*self.posts_tree.get_children())
+
+        for i in posts: # [{...}, {...}]
+            self.insert_post(i)
 
     """
     Inserts a single post to the post_tree widget.
@@ -130,14 +131,15 @@ A subclass of tk.Frame that is responsible for drawing all of the widgets
 in the footer portion of the root frame.
 """
 class Footer(tk.Frame):
-    def __init__(self, root, save_callback=None):
+    def __init__(self, root, save_callback=None, online_callback=None):
         tk.Frame.__init__(self, root)
         self.root = root
         self._save_callback = save_callback
+        self._online_callback = online_callback
         # IntVar is a variable class that provides access to special variables
         # for Tkinter widgets. is_online is used to hold the state of the chk_button widget.
         # The value assigned to is_online when the chk_button widget is changed by the user
-        # can be retrieved using he get() function:
+        # can be retrieved using the get() function:
         # chk_value = self.is_online.get()
         self.is_online = tk.IntVar()
         # After all initialization is complete, call the _draw method to pack the widgets
@@ -152,7 +154,8 @@ class Footer(tk.Frame):
         # TODO: Add code that implements a callback to the chk_button click event.
         # The callback should support a single parameter that contains the value
         # of the self.is_online widget variable.
-        pass
+        if self._online_callback is not None:
+            self._online_callback(self.is_online.get())
 
     """
     Calls the callback function specified in the save_callback class attribute, if
@@ -282,7 +285,7 @@ class MainApp(tk.Frame):
         # TODO: Add a callback for detecting changes to the online checkbox widget in the Footer class. Follow
         # the conventions established by the existing save_callback parameter.
         # HINT: There may already be a class method that serves as a good callback function!
-        self.footer = Footer(self.root, save_callback=self.save_profile)
+        self.footer = Footer(self.root, save_callback=self.save_profile, online_callback = self.online_changed)
         self.footer.pack(fill=tk.BOTH, side=tk.BOTTOM)
 
 if __name__ == "__main__":

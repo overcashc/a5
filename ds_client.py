@@ -25,18 +25,18 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
     srv_msg = json.loads(srv_msg) 
     try:
       token = variables[0] #server's public key
-      message = np.encrypt_entry('hello does it work', token).decode('utf-8')
-      post_message = ds_protocol.post(token, message) # post function
+      encrypted_message = np.encrypt_entry(message, token).decode('utf-8')
+      post_message = ds_protocol.post(np.public_key, encrypted_message) # post function
       print(post_message) #debug
       client.sendall(post_message.encode('utf-8')) #sending message to server
       srv_msg2 = client.recv(4096).decode('utf-8')
       post_response = ds_protocol.extract_msg(srv_msg2)
-      print(f"{post_response}:", message)
+      print(post_response)
       bio_func = ds_protocol.bio(token, bio) # bio function
       client.sendall(bio_func.encode('utf-8')) #sending bio to server
     except KeyError:
       print("Please try again with the correct username or password.")
 
 np = NaClProfile()
-my_public_key= np.public_key
-send('168.235.86.101', 3021, 'spiderman', 'pass123', 'Hello this is mike', 'im a human')
+
+
