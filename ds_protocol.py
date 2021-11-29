@@ -5,17 +5,11 @@
 import json
 import time
 import sys
-from NaClProfile import NaClProfile
 
-
-
-def join(username: str, password: str):
+def join(username: str, password: str, my_public_key):
   '''
   This function will organize the username and password in json format
   '''
-  np = NaClProfile()
-  np.generate_keypair()
-  my_public_key = np.public_key #debug
   join_str = {"join": {"username": username, "password": password, "token": my_public_key}}
   json_join_str = json.dumps(join_str)
   return json_join_str
@@ -25,7 +19,7 @@ def post(token: str, message: str):
   This function will organize the token and message in json format
   '''
 
-  send_msg = {"token": token, "post": {"entry": message,"timestamp": time.time()}}  
+  send_msg = {"token": token, "post": {"entry": message,"timestamp": time.time()}}
   json_send_msg = json.dumps(send_msg)
   return json_send_msg
 

@@ -17,23 +17,13 @@ from pathlib import Path
 import json, time, os
 
 
-class NaClProfile(Profile):
-    def __init__(self):
+class NaClProfile(Profile, NaClDSEncoder):
+    def __init__(self, dsuserver=None, username=None, password=None):
         """
-        TODO: Complete the initializer method. Your initializer should create the follow three 
-        public data attributes:
-
-        public_key:str
-        private_key:str
-        keypair:str
-
-        Whether you include them in your parameter list is up to you. Your decision will frame 
-        how you expect your class to be used though, so think it through.
+        Initializes attributes
         """
-        self.public_key = ''
-        self.private_key = ''
-        self.keypair = ''
-        super().__init__()
+        super().__init__(dsuserver, username, password)
+        self.generate_keypair()
 
     def generate_keypair(self) -> str:
         """
@@ -41,51 +31,53 @@ class NaClProfile(Profile):
         This method should use the NaClDSEncoder module to generate a new keypair and populate
         the public data attributes created in the initializer.
 
-        :return: str    
+        :return: str
         """
-        nacl_enc = NaClDSEncoder()
-        nacl_enc.generate()
-        self.keypair = nacl_enc.keypair
-        self.public_key = nacl_enc.public_key
-        self.private_key = nacl_enc.private_key
-        return nacl_enc.keypair
+        self.generate()
+        del self.raw_keypair
+        #deleting the raw keypair attribute for saving the profile purposes
+        return self.keypair
 
     def import_keypair(self, keypair: str):
         """
         Imports an existing keypair. Useful when keeping encryption keys in a location other than the
         dsu file created by this class.
-
-        This method should use the keypair parameter to populate the public data attributes created by
-        the initializer. 
-        
-        NOTE: you can determine how to split a keypair by comparing the associated data attributes generated
-        by the NaClDSEncoder
         """
         self.keypair = keypair
         self.public_key = keypair[:44]
         self.private_key = keypair [44:]
 
     def add_post(self, post: Post) -> None:
-        entry = post['entry']
-        encrypted_post = Post(self.encrypt_entry(entry, self.public_key))
-        super().add_post(encrypted_post)
-
-
-    def get_posts(self) -> Post:
-        entry_list = super().get_posts()
+        '''
+        Encrypts post and adds post to _posts attribute
+        '''
+        priv_key = self.encode_private_key(self.private_key)
+        pub_key = self.encode_public_key(self.public_key)
+        box = Box(priv_key, pub_key)
+        encoded_post = post.get_entry().encode('utf-8')
+        encrypted_entry = box.encrypt(encoded_post, encoder=nacl.encoding.Base64Encoder).decode('utf-8')
+        post.set_entry(encrypted_entry)
+        super().add_post(post)
+    def get_posts(self) -> list:
+        '''
+        Returns list of decrypted posts
+        '''
+        encrypted_entries = super().get_posts()
         new_list = []
-        for x in entry_list:
-            entry = x['entry']
-            nacl = NaClDSEncoder()
-            priv_key = nacl.encode_private_key(self.private_key)
-            pub_key = nacl.encode_public_key(self.public_key)
-            decrypt_box = Box(priv_key, pub_key)
-            plaintext = decrypt_box.decrypt(entry)
+        priv_key = self.encode_private_key(self.private_key)
+        pub_key = self.encode_public_key(self.public_key)
+        decrypt_box = Box(priv_key, pub_key)
+        for posts in encrypted_entries:
+            encoded_entry = posts.get_entry().encode('utf-8')
+            plaintext = decrypt_box.decrypt(encoded_entry, encoder=nacl.encoding.Base64Encoder)
             decrypted_entry = plaintext.decode('utf-8')
             new_list.append(Post(decrypted_entry))
         return new_list
 
     def load_profile(self, path: str) -> None:
+        '''
+        added support for storing new keypair attributes
+        '''
         p = Path(path)
 
         if os.path.exists(p) and p.suffix == '.dsu':
@@ -107,33 +99,15 @@ class NaClProfile(Profile):
                 raise DsuProfileError(ex)
         else:
             raise DsuFileError()
-    """
-    TODO: Override the load_profile method to add support for storing a keypair.
-
-    Since the DS Server is now making use of encryption keys rather than username/password attributes, you will 
-    need to add support for storing a keypair in a dsu file. The best way to do this is to override the 
-    load_profile module and add any new attributes you wish to support.
-
-    NOTE: The Profile class implementation of load_profile contains everything you need to complete this TODO.
-     Just copy the code here and add support for your new attributes.
-    """
 
     def encrypt_entry(self, entry:str, public_key:str) -> bytes:
         """
         Used to encrypt messages using a 3rd party public key, such as the one that
         the DS server provides.
-        
-        TODO: Complete the encrypt_entry method.
-
-        NOTE: A good design approach might be to create private encrypt and decrypt methods that your add_post, 
-        get_posts and this method can call.
-        
-        :return: bytes 
         """
-        nacl = NaClDSEncoder()
-        priv_key = nacl.encode_private_key(self.private_key)
-        pub_key = nacl.encode_public_key(public_key)
+        priv_key = self.encode_private_key(self.private_key)
+        pub_key = self.encode_public_key(public_key)
         my_box = Box(priv_key, pub_key)
         message = entry.encode('utf-8')
-        encrypted = my_box.encrypt(message)
+        encrypted = my_box.encrypt(message, encoder=nacl.encoding.Base64Encoder)
         return encrypted

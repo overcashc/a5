@@ -7,6 +7,7 @@ from Profile import Profile
 from Profile import Post
 from OpenWeather import OpenWeather
 from LastFM import LastFM
+from NaClProfile import NaClProfile
 import ds_client
 
 port = 3021
@@ -28,6 +29,7 @@ apikey = "de81f1cd5761b067f3b3625d8d635530"
 apikey_fm = '33f7f26663017ea24945be21492594b2'
 open_weather = OpenWeather(zipcode, ccode)
 last_fm = LastFM()
+np = NaClProfile()
 
 '''
 File explorer
@@ -212,6 +214,8 @@ def E(): #Edit info in dsu file
                     transcluded_entry = test_api(entry, apikey, open_weather)
                 else:
                     transcluded_entry = test_api(entry, apikey_fm, last_fm)
+            #encryption
+            np.encrypt_entry(transcluded_entry, np.public_key).decode('utf-8')
             post = Post(transcluded_entry)
             store_info.add_post(post)
             upload_entry = input("Would you like to publish this entry to the ICS 32 Distributed Social? Please Enter: yes or no\n")  

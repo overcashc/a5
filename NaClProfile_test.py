@@ -17,9 +17,6 @@ print(ee)
 np.add_post(Post("Hello Salted World!"))
 p_list = np.get_posts()
 print(p_list[0].get_entry())
-print(type(np._posts[0]['entry'])) #debug
-#np._posts[0]['entry'] = str(np._posts[0]['entry']) #debug, can't use this
-
 
 
 # Save the profile
