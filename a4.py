@@ -184,7 +184,7 @@ def O(p): #Open .dsu file
         index = int(entry) - 1
         posts = store_info.get_posts()
         dict_2 = posts[index]
-        get_ip = input("What is the ip address of the server you'd like to publish to? \n")
+        get_ip = input("What is the ip address of the server you'd like to publish to? (Class server 168.235.86.101)\n")
         store_info.dsuserver = get_ip
         ds_client.send(store_info.dsuserver, port, store_info.username, store_info.password, dict_2['entry'], store_info.bio)
     return True
@@ -215,12 +215,14 @@ def E(): #Edit info in dsu file
                 else:
                     transcluded_entry = test_api(entry, apikey_fm, last_fm)
             post = Post(transcluded_entry)
-            store_info.add_post(post)
+            #store_info.add_post(post)
             upload_entry = input("Would you like to publish this entry to the ICS 32 Distributed Social? Please Enter: yes or no\n")  
             if upload_entry == 'yes':
-                get_ip = input("What is the ip address of the server you'd like to publish to? \n")
+                get_ip = input("What is the ip address of the server you'd like to publish to? (Class server 168.235.86.101) \n")
                 store_info.dsuserver = get_ip
-                ds_client.send(store_info.dsuserver, port, store_info.username, store_info.password, transcluded_entry, store_info.bio)
+                msg, bio = ds_client.send(store_info.dsuserver, port, store_info.username, store_info.password, transcluded_entry, store_info.bio)
+                store_info._posts.append(Post(msg))
+                store_info.bio = bio
         if "delpost" in x:
             index = int(x[-1]) - 1
             store_info.del_post(index)
